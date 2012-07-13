@@ -17,6 +17,7 @@ class Mask(object):
     regex_flags = re.IGNORECASE | re.DOTALL
     used_variable_names = []
     filter_factory = None
+    filters = {}
 
     # Regular Expressions
     SPLIT_REGEX = r"(\{\{.*?\}\})"
@@ -53,7 +54,7 @@ class Mask(object):
         Parses an HTML document and returns the variables defined by the mask
         file.
 
-        Returns a dictionary object containing the parameters from the
+        Returns a dictionary object containing the parameters from their
         mask_file populated with their corresponding values from the provided
         content.
 
@@ -72,7 +73,7 @@ class Mask(object):
         variables = self._extract_variables(regex, content, variables)
 
         # Run any filters against the variables
-        variables = self._map_variables(variables, filters)
+        variables = self._map_variables(variables, self.filters)
 
         return variables
 
@@ -136,10 +137,10 @@ class Mask(object):
 
     def _compile_variable_template_callback(self, params):
         reg = params.groupdict()
-        # Find the appropriate
-        # TODO: Make the functions that can be called extendible
         if reg['variable'] is not None:
-            repl = self._variable(reg['variable'], reg['filter'])
+            repl = self._variable(reg['variable'])
+            if reg['filter'] != '':
+                self.filters[reg['variable']] = reg['filter']
         elif reg['variable'] is None:
             repl = self._ignore(reg['variable'])
         else:
@@ -176,9 +177,9 @@ class Mask(object):
                                 variable_name)
                     else:
                         filter = self.filter_factory\
-                            .getFilter(filters[variable_name])
+                            .get_filter(filters[variable_name])
                         variables[variable_name] = \
-                            filter(variables[variable_name], variable_name)
+                            filter(variables[variable_name])
 
         return variables
 
@@ -209,6 +210,6 @@ class Mask(object):
     def _ignore(self, name):
         return "(?:.*?)"
 
-    def _variable(self, name, filter):
+    def _variable(self, name):
         self.used_variable_names.append(name)
-        return "(?P<%s>.*?)" % name
+        return "(?P<{0}>.*?)".format(name)

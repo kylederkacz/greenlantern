@@ -21,7 +21,7 @@ class FilterFactory:
     def register_filter(self, name, filter_method):
         self._filter_dictionary[name] = dict[name]
 
-    def getFilter(self, name):
+    def get_filter(self, name):
         if name in self._filter_dictionary:
             return self._filter_dictionary[name]
         else:
@@ -32,5 +32,5 @@ class FilterFactory:
 # Built-in filters
 ###############################################################################
 
-def strip_html(content, name):
+def strip_html(content):
     return re.sub(r"(\<.*?\>)", "", content)

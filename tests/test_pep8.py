@@ -5,7 +5,7 @@ import logging
 
 MY_DIR = os.path.dirname(__file__)
 SOURCES_DIR = MY_DIR + "/../greenlantern"
-EXCLUDE_FILES = ()
+EXCLUDE_FILES = ('tests')
 
 
 class TestPep8():
